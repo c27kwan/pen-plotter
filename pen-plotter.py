@@ -76,7 +76,7 @@ def draw_rectangle(width: int, height: int):
 read_all_output()
 
 curr_x = 0
-curr_y = 700
+curr_y = 800
 
 # draw_rectangle(100, 50)
 draw_rectangle(200, 200)
