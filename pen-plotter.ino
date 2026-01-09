@@ -41,7 +41,7 @@ TMC5160Stepper stepperDriver(pin_chipSelA, RS);
 Adafruit_PWMServoDriver linearDriver(PCA9685_I2C_ADDRESS, Wire1);
 ADS1015 ADS(0x48, &Wire1);
 
-
+// When initialized, the angle of the actuator is at 90 degrees relative to the defined cartesian plan.
 double curr_radian = M_PI / 2.0;
 
 void setupMotor() {
@@ -112,7 +112,6 @@ void setup() {
   }
 }
 
-
 int readPosition() {
   return ADS.readADC(1);
 }
@@ -134,7 +133,7 @@ void linearStop() {
   linearDriver.setPin(in2Pin, 0);
 }
 
-// Position [0, 1004]
+// Position in [0, 1004]
 void moveActuator(int16_t position) {
   if (position < 0 || position > 1004) {
     Serial.println("yikes out of bound");
@@ -200,7 +199,8 @@ int radianToMicrosteps(double radian) {
   return (radian * MAX_STEPS) / (2 * M_PI);
 }
 
-// x in [-900, 900], y in [100, 1000]
+// Cartesian plan corresponding to the whiteboard attached to the 
+// x in [-400, 400], y in [100, 1000]
 void moveToXY(int x, int y) {
   int ARM_LENGTH = 516;
   int X_MIN = -400;
@@ -244,14 +244,14 @@ void rotateToTarget(int32_t targetPositionInMicrosteps) {
   Serial.println(stepperDriver.XACTUAL());
 }
 
-// Example of using the functions to control things
+// Main loop waits for serial input to delegate to other funtions.
 void loop() {
   if (Serial.available()) {
-
-    String input = Serial.readStringUntil('\n');  // Read until newline
-
+    String input = Serial.readStringUntil('\n');
     Serial.print("You entered: ");
     Serial.println(input);
+
+    // Tokenize the input.
     String parsedInput[5];
     uint16_t currIndex = 0;
     size_t tokenIndex = 0;
@@ -267,6 +267,7 @@ void loop() {
       currIndex = endIndex + 1;
     }
 
+    // Match tokens to corresponding functions.
     switch(parsedInput[0].charAt(0)) {
       case 'd':
       case 'D': {
